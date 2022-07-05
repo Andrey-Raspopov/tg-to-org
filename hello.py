@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from flask import Flask
-from flask import render_template
+from flask import Flask, Response
+from flask import render_template, url_for
 import json
 
 app = Flask(__name__)
@@ -47,6 +47,8 @@ class Message(db.Model):
     author_name = db.Column(db.String)
     sender_id = db.Column(db.Integer)
     sender_name = db.Column(db.String)
+    attachment_name = db.Column(db.String)
+    attachment_type = db.Column(db.String)
 
 
 @app.route("/")
@@ -64,3 +66,27 @@ def hello_world():
         error_text = "<p>The error:<br>" + str(e) + "</p>"
         hed = '<h1>Something is broken.</h1>'
         return hed + error_text
+
+
+@app.route("/mp3/<mp3_filename>")
+def streammp3(mp3_filename):
+    def generate(mp3_filename):
+        with open(f"static/{mp3_filename}", "rb") as fmp3:
+            data = fmp3.read(1024)
+            while data:
+                yield data
+                data = fmp3.read(1024)
+
+    return Response(generate(mp3_filename), mimetype="audio/mpeg")
+
+
+@app.route("/mp4/<mp4_filename>")
+def streammp4(mp4_filename):
+    def generate(mp4_filename):
+        with open(f"static/{mp4_filename}", "rb") as fmp4:
+            data = fmp4.read(1024)
+            while data:
+                yield data
+                data = fmp4.read(1024)
+
+    return Response(generate(mp4_filename), mimetype="audio/mpeg")

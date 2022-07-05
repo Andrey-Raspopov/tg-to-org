@@ -3,7 +3,20 @@
 {% for author in items %}
   <h1>{{ authors[author] }}</h1>
   {% for post in items[author] %}
-    <p>{{ post.message_text }}}</p>
+    {% if post.message_text %}
+    <p>{{ post.message_text }}</p>
+    {% endif %}
+    {% if post.attachment_name %}
+      {% if post.attachment_type=="MessageMediaType.PHOTO" %}
+      <img src="{{ url_for('static', filename=post.attachment_name) }}" height="200" width="200">
+      {% elif post.attachment_type=="MessageMediaType.AUDIO" %}
+      <audio src="http://127.0.0.1:5000/mp3/{{ post.attachment_name }}" controls>
+      </audio>
+      {% elif post.attachment_type=="MessageMediaType.VIDEO" %}
+      <video src="http://127.0.0.1:5000/mp4/{{ post.attachment_name }}" width="320" height="240" controls>
+      </video>
+      {% endif %}
+    {% endif %}
     <br>
 <br>
   {% endfor %}
