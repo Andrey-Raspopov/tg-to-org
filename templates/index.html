@@ -1,24 +1,42 @@
-<!doctype html>
-<title>Hello from Flask</title>
-{% for author in items %}
-  <h1>{{ authors[author] }}</h1>
-  {% for post in items[author] %}
-    {% if post.message_text %}
-    <p>{{ post.message_text }}</p>
-    {% endif %}
-    {% if post.attachment_name %}
-      {% if post.attachment_type=="MessageMediaType.PHOTO" %}
-      <img src="{{ url_for('static', filename=post.attachment_name) }}" height="200" width="200">
-      {% elif post.attachment_type=="MessageMediaType.AUDIO" %}
-      <audio src="http://127.0.0.1:5000/mp3/{{ post.attachment_name }}" controls>
-      </audio>
-      {% elif post.attachment_type=="MessageMediaType.VIDEO" %}
-      <video src="http://127.0.0.1:5000/mp4/{{ post.attachment_name }}" width="320" height="240" controls>
-      </video>
-      {% endif %}
-    {% endif %}
-    <br>
-<br>
-  {% endfor %}
-<hr>
-{% endfor %}
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+<title>tg-to-org</title>
+<link rel="stylesheet"
+      href="{{url_for('.static', filename='styles.css')}}">
+
+{% block content %}
+    {% for author in items %}
+        <h1 align="center">{{ authors[author] }}</h1>
+        {% for post in items[author] %}
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="post">
+                            {% if post.message_text %}
+                                <p>{{ post.message_text }}</p>
+                            {% endif %}
+                            {% if post.attachment_name %}
+                                {% if post.attachment_type=="MessageMediaType.PHOTO" %}
+                                    <img src="{{ url_for('static', filename=post.attachment_name) }}" height="200"
+                                         width="200">
+                                {% elif post.attachment_type=="MessageMediaType.AUDIO" %}
+                                    <audio src="http://127.0.0.1:5000/mp3/{{ post.attachment_name }}" controls>
+                                    </audio>
+                                {% elif post.attachment_type=="MessageMediaType.VIDEO" %}
+                                    <video src="http://127.0.0.1:5000/mp4/{{ post.attachment_name }}" width="320"
+                                           height="240"
+                                           controls>
+                                    </video>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="margin-top: 1.5rem !important;margin-bottom: 1.5rem !important;"/>
+        {% endfor %}
+        <hr>
+    {% endfor %}
+{% endblock %}
