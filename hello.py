@@ -35,9 +35,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 db = SQLAlchemy(app)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -90,3 +87,7 @@ def streammp4(mp4_filename):
                 data = fmp4.read(1024)
 
     return Response(generate(mp4_filename), mimetype="audio/mpeg")
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
