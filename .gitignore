@@ -3,3 +3,4 @@ __pycache__/*
 *.session
 static/*
 tg.db
+!static/styles.css
