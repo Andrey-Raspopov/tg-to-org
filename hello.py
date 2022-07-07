@@ -7,37 +7,18 @@ import json
 app = Flask(__name__)
 
 
-def back():
-    result = []
-    with open('db.json_lines', 'r') as dbfile:
-        data = json.loads(dbfile.read())
-        for obj in data:
-            try:
-                print(obj['text'])
-                result.append(obj['text'])
-            except:
-                try:
-                    print(obj['caption'])
-                    result.append(obj['caption'])
-                except:
-                    pass
-    return result
-
-
-# back()
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 
-db_name = 'tg.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db_name = "tg.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_name
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 db = SQLAlchemy(app)
 
 
 class Message(db.Model):
-    __tablename__ = 'messages'
+    __tablename__ = "messages"
     id = db.Column(db.Integer, primary_key=True)
     message_text = db.Column(db.String)
     author_id = db.Column(db.Integer)
@@ -61,7 +42,7 @@ def hello_world():
     except Exception as e:
         # e holds description of the error
         error_text = "<p>The error:<br>" + str(e) + "</p>"
-        hed = '<h1>Something is broken.</h1>'
+        hed = "<h1>Something is broken.</h1>"
         return hed + error_text
 
 
@@ -89,5 +70,5 @@ def streammp4(mp4_filename):
     return Response(generate(mp4_filename), mimetype="audio/mpeg")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

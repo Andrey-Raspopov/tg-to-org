@@ -2,10 +2,9 @@
 import os.path
 import sqlite3
 
+import asyncio
 from pyrogram import Client
 from pyrogram import filters
-from pyrogram import enums
-import asyncio
 
 import db
 from config import ACCOUNT, PHONE_NR, API_ID, API_HASH
@@ -14,17 +13,13 @@ app = Client(ACCOUNT, phone_number=PHONE_NR, api_id=API_ID, api_hash=API_HASH)
 
 
 async def download(message):
-    return await app.download_media(
-        message,
-        file_name="static/",
-        progress=progress
-    )
+    return await app.download_media(message, file_name="static/", progress=progress)
 
 
 @app.on_message(filters.channel)
 def my_handler(client, message):
     conn = sqlite3.connect("tg.db")
-    c = conn.cursor()
+    cursor = conn.cursor()
     attachment = None
     attachment_type = None
     if message.media:
@@ -33,6 +28,7 @@ def my_handler(client, message):
             attachment = os.path.basename(attachment)
             attachment_type = str(message.media)
         except:
+            # TODO: find out exception types for this shit
             pass
     if message.text:
         text = message.text
@@ -40,7 +36,7 @@ def my_handler(client, message):
         text = message.caption
     else:
         text = None
-    id = int(str(message.id) + str(-message.chat.id))
+    post_id = int(str(message.id) + str(-message.chat.id))
     if message.forward_sender_name:
         author_name = message.forward_sender_name
         author_id = None
@@ -50,7 +46,7 @@ def my_handler(client, message):
     else:
         author_name = message.chat.title
         author_id = -message.chat.id
-    c.execute(
+    cursor.execute(
         """INSERT INTO messages
         (
             id,
@@ -64,20 +60,26 @@ def my_handler(client, message):
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
         (
-            id,
+            post_id,
             text,
             author_id,
             author_name,
             -message.chat.id,
             message.chat.title,
             attachment,
-            attachment_type
+            attachment_type,
         ),
     )
     conn.commit()
 
 
 async def progress(current, total):
+    """
+    Show progress of media download.
+    :param current: current size of a downloaded media
+    :param total: total size of a downloading media
+    :return:
+    """
     print(f"{current * 100 / total:.1f}%")
 
 
