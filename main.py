@@ -5,21 +5,20 @@ import sqlite3
 import asyncio
 from pyrogram import Client
 from pyrogram import filters
+from sqlalchemy import insert
 
-import db
+from app import Message, db
 from config import ACCOUNT, PHONE_NR, API_ID, API_HASH
 
 app = Client(ACCOUNT, phone_number=PHONE_NR, api_id=API_ID, api_hash=API_HASH)
 
 
 async def download(message):
-    return await app.download_media(message, file_name="static/", progress=progress)
+    return await message.download(file_name="static/", progress=progress)
 
 
 @app.on_message(filters.channel)
 def my_handler(client, message):
-    conn = sqlite3.connect("tg.db")
-    cursor = conn.cursor()
     attachment = None
     attachment_type = None
     if message.media:
@@ -29,6 +28,7 @@ def my_handler(client, message):
             attachment_type = str(message.media)
         except:
             # TODO: find out exception types for this shit
+            # TODO: Work with polls
             pass
     if message.text:
         text = message.text
@@ -46,31 +46,27 @@ def my_handler(client, message):
     else:
         author_name = message.chat.title
         author_id = -message.chat.id
-    cursor.execute(
-        """INSERT INTO messages
-        (
-            id,
-            message_text,
-            author_id,
-            author_name,
-            sender_id,
-            sender_name,
-            attachment_name,
-            attachment_type
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            post_id,
-            text,
-            author_id,
-            author_name,
-            -message.chat.id,
-            message.chat.title,
-            attachment,
-            attachment_type,
-        ),
-    )
-    conn.commit()
+    # TODO: if message_id exists in db, UPDATE message
+    post = None
+    if message.media_group_id:
+        post = Message.query.order_by(Message.media_group_id).first()
+    if post:
+        post.attachment_type += f';{attachment_type}'
+        post.attachment_name += f';{attachment}'
+        db.session.commit()
+    else:
+        db.session.add(Message(text,
+                           author_id,
+                           author_name,
+                           -message.chat.id,
+                           message.chat.title,
+                           attachment,
+                           attachment_type,
+                           str(message.date),
+                           message.media_group_id
+                           )
+                   )
+        db.session.commit()
 
 
 async def progress(current, total):
@@ -83,6 +79,21 @@ async def progress(current, total):
     print(f"{current * 100 / total:.1f}%")
 
 
-db.init()
+conn = sqlite3.connect('tg.db')
+c = conn.cursor()
+c.execute(
+    """CREATE TABLE IF NOT EXISTS messages
+        ([id] INTEGER PRIMARY KEY,
+        [message_text] TEXT,
+        [author_id] INTEGER,
+        [author_name] TEXT,
+        [sender_id] INTEGER,
+        [sender_name] TEXT,
+        [attachment_name] TEXT,
+        [attachment_type] TEXT,
+        [date] TEXT,
+        [media_group_id] TEXT)"""
+)
+conn.commit()
 
 app.run()

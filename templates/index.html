@@ -13,24 +13,26 @@
             <div class="container px-4 px-lg-5">
                 <div class="row gx-4 gx-lg-5 justify-content-center">
                     <div class="col-md-10 col-lg-8 col-xl-7">
-                        <div class="post">
-                            {% if post.message_text %}
-                                <p>{{ post.message_text }}</p>
-                            {% endif %}
-                            {% if post.attachment_name %}
-                                {% if post.attachment_type=="MessageMediaType.PHOTO" %}
-                                    <img src="{{ url_for('static', filename=post.attachment_name) }}" height="200"
+                         <div class="post">
+                             {% if post[0].message_text %}
+                                 <p>{{ post[0].message_text }}</p>
+                             {% endif %}
+                             {% if post[0].attachment_name %}
+                                {% for attachment in post[1] %}
+                                    {% if post[1][attachment]=="MessageMediaType.PHOTO" %}
+                                         <img src="{{ url_for('static', filename=attachment) }}" height="200"
                                          width="200">
-                                {% elif post.attachment_type=="MessageMediaType.AUDIO" %}
-                                    <audio src="http://127.0.0.1:5000/mp3/{{ post.attachment_name }}" controls>
-                                    </audio>
-                                {% elif post.attachment_type=="MessageMediaType.VIDEO" %}
-                                    <video src="http://127.0.0.1:5000/mp4/{{ post.attachment_name }}" width="320"
+                                    {% elif post[1][attachment]=="MessageMediaType.AUDIO" %}
+                                        <audio src="http://127.0.0.1:5000/mp3/{{ post[0].attachment }}" controls>
+                                        </audio>
+                                    {% elif post[1][attachment]=="MessageMediaType.VIDEO" %}
+                                        <video src="http://127.0.0.1:5000/mp4/{{ post[0].attachment }}" width="320"
                                            height="240"
                                            controls>
-                                    </video>
-                                {% endif %}
-                            {% endif %}
+                                        </video>
+                                    {% endif %}
+                                {% endfor %}
+                             {% endif %}
                         </div>
                     </div>
                 </div>
