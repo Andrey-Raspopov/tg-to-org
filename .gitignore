@@ -1,6 +1,5 @@
 .idea/*
 __pycache__/*
 *.session
-static/*
+static/tg_data/*
 tg.db
-!static/styles.css

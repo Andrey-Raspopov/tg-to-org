@@ -22,7 +22,7 @@
                                 {% for attachment in post[1] %}
                                     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                                     {% if post[1][attachment]=="MessageMediaType.PHOTO" %}
-                                         <img src="{{ url_for('static', filename=attachment) }}" class="w-100 shadow-1-strong rounded mb-4">
+                                         <img src="{{ url_for('static', filename='tg_data/'+attachment) }}" class="w-100 shadow-1-strong rounded mb-4">
                                     {% elif post[1][attachment]=="MessageMediaType.AUDIO" %}
                                         <audio src="http://127.0.0.1:5000/mp3/{{ attachment }}" class="w-100 shadow-1-strong rounded mb-4" controls>
                                         </audio>

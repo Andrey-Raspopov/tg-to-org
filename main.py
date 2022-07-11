@@ -14,7 +14,7 @@ app = Client(ACCOUNT, phone_number=PHONE_NR, api_id=API_ID, api_hash=API_HASH)
 
 
 async def download(message):
-    return await message.download(file_name="static/", progress=progress)
+    return await message.download(file_name="static/tg_data/", progress=progress)
 
 
 @app.on_message(filters.channel)
