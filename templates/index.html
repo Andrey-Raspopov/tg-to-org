@@ -20,13 +20,13 @@
                              {% if post[0].attachment_name %}
                                 {% for attachment in post[1] %}
                                     {% if post[1][attachment]=="MessageMediaType.PHOTO" %}
-                                         <img src="{{ url_for('static', filename=attachment) }}" height="200"
+                                         <img src="{{ url_for('static', filename='tg_data/'+attachment) }}" height="200"
                                          width="200">
                                     {% elif post[1][attachment]=="MessageMediaType.AUDIO" %}
-                                        <audio src="http://127.0.0.1:5000/mp3/{{ post[0].attachment }}" controls>
+                                        <audio src="http://127.0.0.1:5000/mp3/{{ attachment }}" controls>
                                         </audio>
                                     {% elif post[1][attachment]=="MessageMediaType.VIDEO" %}
-                                        <video src="http://127.0.0.1:5000/mp4/{{ post[0].attachment }}" width="320"
+                                        <video src="http://127.0.0.1:5000/mp4/{{ attachment }}" width="320"
                                            height="240"
                                            controls>
                                         </video>

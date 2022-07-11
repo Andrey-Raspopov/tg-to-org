@@ -2,10 +2,9 @@ from collections import defaultdict
 
 from flask import Flask, Response
 from flask import render_template
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-
-from flask_sqlalchemy import SQLAlchemy
 
 db_name = "tg.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_name
@@ -27,7 +26,8 @@ class Message(db.Model):
     date = db.Column(db.String)
     media_group_id = db.Column(db.String)
 
-    def __init__(self, _message_text, _author_id, _author_name, _sender_id, _sender_name, _attachment_name, _attachment_type, _date, _media_group_id):
+    def __init__(self, _message_text, _author_id, _author_name, _sender_id, _sender_name, _attachment_name,
+                 _attachment_type, _date, _media_group_id):
         self.message_text = _message_text
         self.author_id = _author_id
         self.author_name = _author_name
@@ -38,6 +38,7 @@ class Message(db.Model):
         self.date = _date
         self.media_group_id = _media_group_id
 
+
 def parse(string1, string2):
     a = string1.split(';')
     b = string2.split(';')
@@ -45,6 +46,7 @@ def parse(string1, string2):
     for i in range(len(a)):
         r[a[i]] = b[i]
     return r
+
 
 @app.route("/")
 def hello_world():
@@ -66,10 +68,11 @@ def hello_world():
         hed = "<h1>Something is broken.</h1>"
         return hed + error_text
 
+
 @app.route("/mp3/<mp3_filename>")
 def streammp3(mp3_filename):
     def generate(mp3_filename):
-        with open(f"static/{mp3_filename}", "rb") as fmp3:
+        with open(f"static/tg_data/{mp3_filename}", "rb") as fmp3:
             data = fmp3.read(1024)
             while data:
                 yield data
@@ -81,7 +84,7 @@ def streammp3(mp3_filename):
 @app.route("/mp4/<mp4_filename>")
 def streammp4(mp4_filename):
     def generate(mp4_filename):
-        with open(f"static/{mp4_filename}", "rb") as fmp4:
+        with open(f"static/tg_data/{mp4_filename}", "rb") as fmp4:
             data = fmp4.read(1024)
             while data:
                 yield data
@@ -92,4 +95,3 @@ def streammp4(mp4_filename):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
