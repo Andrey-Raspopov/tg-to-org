@@ -61,7 +61,7 @@
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1.5;
   --bs-body-color: #212529;
-  --bs-body-bg: #fff;
+  --bs-body-bg: linear-gradient(90deg, #FDBB2D 0%, #3A1C71 100%);
 }
 
 *,
@@ -84,7 +84,7 @@ body {
   line-height: var(--bs-body-line-height);
   color: var(--bs-body-color);
   text-align: var(--bs-body-text-align);
-  background-color: var(--bs-body-bg);
+  background: var(--bs-body-bg);
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
@@ -11216,6 +11216,9 @@ header.masthead .site-heading .h1 {
   text-align: center;
 }
 
+.post {
+  background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+}
 .post-preview > a {
   color: #212529;
 }

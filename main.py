@@ -51,21 +51,23 @@ def my_handler(client, message):
     if message.media_group_id:
         post = Message.query.order_by(Message.media_group_id).first()
     if post:
-        post.attachment_type += f';{attachment_type}'
-        post.attachment_name += f';{attachment}'
+        post.attachment_type += f";{attachment_type}"
+        post.attachment_name += f";{attachment}"
         db.session.commit()
     else:
-        db.session.add(Message(text,
-                           author_id,
-                           author_name,
-                           -message.chat.id,
-                           message.chat.title,
-                           attachment,
-                           attachment_type,
-                           str(message.date),
-                           message.media_group_id
-                           )
-                   )
+        db.session.add(
+            Message(
+                text,
+                author_id,
+                author_name,
+                -message.chat.id,
+                message.chat.title,
+                attachment,
+                attachment_type,
+                str(message.date),
+                message.media_group_id,
+            )
+        )
         db.session.commit()
 
 
@@ -79,7 +81,7 @@ async def progress(current, total):
     print(f"{current * 100 / total:.1f}%")
 
 
-conn = sqlite3.connect('tg.db')
+conn = sqlite3.connect("tg.db")
 c = conn.cursor()
 c.execute(
     """CREATE TABLE IF NOT EXISTS messages
