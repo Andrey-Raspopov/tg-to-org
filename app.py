@@ -68,6 +68,38 @@ def hello_world():
         hed = "<h1>Something is broken.</h1>"
         return hed + error_text
 
+@app.route("/channels")
+def render_channels():
+    items = Message.query.order_by(Message.author_id).all()
+    posts = defaultdict(list)
+    authors = defaultdict(list)
+    for item in items:
+        if item.attachment_type:
+            posts[item.author_id].append([item, parse(item.attachment_name, item.attachment_type)])
+        else:
+            posts[item.author_id].append([item])
+        authors[item.author_id] = item.author_name
+    print(posts)
+    return render_template("authors.html", items=posts, authors=authors)
+
+@app.route("/channel/<channel>")
+def render_channel(channel):
+    try:
+        items = Message.query.filter(Message.author_id == channel).order_by(Message.author_id).all()
+        posts = defaultdict(list)
+        authors = defaultdict(list)
+        for item in items:
+            if item.attachment_type:
+                posts[item.author_id].append([item, parse(item.attachment_name, item.attachment_type)])
+            else:
+                posts[item.author_id].append([item])
+            authors[item.author_id] = item.author_name
+        print(posts)
+        return render_template("index.html", items=posts, authors=authors)
+    except Exception as e:
+        error_text = "<p>The error:<br>" + str(e) + "</p>"
+        hed = "<h1>Something is broken.</h1>"
+        return hed + error_text
 
 @app.route("/mp3/<mp3_filename>")
 def streammp3(mp3_filename):

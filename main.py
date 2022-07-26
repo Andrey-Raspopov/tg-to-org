@@ -5,7 +5,6 @@ import sqlite3
 import asyncio
 from pyrogram import Client
 from pyrogram import filters
-from sqlalchemy import insert
 
 from app import Message, db
 from config import ACCOUNT, PHONE_NR, API_ID, API_HASH
@@ -14,7 +13,10 @@ app = Client(ACCOUNT, phone_number=PHONE_NR, api_id=API_ID, api_hash=API_HASH)
 
 
 async def download(message):
-    return await message.download(file_name="static/tg_data/", progress=progress)
+    return await message.download(
+        file_name="static/tg_data/",
+        progress=progress
+    )
 
 
 @app.on_message(filters.channel)
@@ -36,7 +38,6 @@ def my_handler(client, message):
         text = message.caption
     else:
         text = None
-    post_id = int(str(message.id) + str(-message.chat.id))
     if message.forward_sender_name:
         author_name = message.forward_sender_name
         author_id = None
