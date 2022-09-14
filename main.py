@@ -5,6 +5,7 @@ import sqlite3
 import asyncio
 from pyrogram import Client
 from pyrogram import filters
+from pyrogram.enums import MessageMediaType
 
 from app import Message, db
 from config import ACCOUNT, PHONE_NR, API_ID, API_HASH
@@ -21,39 +22,17 @@ async def download(message):
 
 @app.on_message(filters.channel)
 def my_handler(client, message):
-    attachment = None
-    attachment_type = None
-    if message.media:
-        try:
-            attachment = asyncio.run(download(message))
-            attachment = os.path.basename(attachment)
-            attachment_type = str(message.media)
-        except:
-            # TODO: find out exception types for this shit
-            # TODO: Work with polls
-            pass
-    if message.text:
-        text = message.text
-    elif message.caption:
-        text = message.caption
-    else:
-        text = None
-    if message.forward_sender_name:
-        author_name = message.forward_sender_name
-        author_id = None
-    elif message.forward_from_chat:
-        author_name = message.forward_from_chat.title
-        author_id = message.forward_from_chat.id
-    else:
-        author_name = message.chat.title
-        author_id = -message.chat.id
+    attachment, attachment_type = process_media(message)
+    text = process_text(message)
+    author_id, author_name = process_author(message)
     # TODO: if message_id exists in db, UPDATE message
     post = None
     if message.media_group_id:
         post = Message.query.order_by(Message.media_group_id).first()
     if post:
-        post.attachment_type += f";{attachment_type}"
-        post.attachment_name += f";{attachment}"
+        if post.attachment_type:
+            post.attachment_type += f";{attachment_type}"
+            post.attachment_name += f";{attachment}"
         db.session.commit()
     else:
         db.session.add(
@@ -67,9 +46,47 @@ def my_handler(client, message):
                 attachment_type,
                 str(message.date),
                 message.media_group_id,
+                0
             )
         )
         db.session.commit()
+
+
+def process_author(message):
+    if message.forward_sender_name:
+        author_name = message.forward_sender_name
+        author_id = None
+    elif message.forward_from_chat:
+        author_name = message.forward_from_chat.title
+        author_id = message.forward_from_chat.id
+    else:
+        author_name = message.chat.title
+        author_id = -message.chat.id
+    return author_id, author_name
+
+
+def process_text(message):
+    if message.text:
+        text = message.text
+    elif message.caption:
+        text = message.caption
+    else:
+        text = None
+    return text
+
+
+def process_media(message):
+    attachment = None
+    attachment_type = None
+    if message.media:
+        if message.media == MessageMediaType.WEB_PAGE:
+            attachment = message.web_page.embed_url
+            attachment_type = str(message.media)
+        else:
+            attachment = asyncio.run(download(message))
+            attachment = os.path.basename(attachment)
+            attachment_type = str(message.media)
+    return attachment, attachment_type
 
 
 async def progress(current, total):
@@ -95,7 +112,8 @@ c.execute(
         [attachment_name] TEXT,
         [attachment_type] TEXT,
         [date] TEXT,
-        [media_group_id] TEXT)"""
+        [media_group_id] TEXT,
+        [read] INTEGER)"""
 )
 conn.commit()
 

@@ -25,9 +25,10 @@ class Message(db.Model):
     attachment_type = db.Column(db.String)
     date = db.Column(db.String)
     media_group_id = db.Column(db.String)
+    read = db.Column(db.Integer)
 
     def __init__(self, _message_text, _author_id, _author_name, _sender_id, _sender_name, _attachment_name,
-                 _attachment_type, _date, _media_group_id):
+                 _attachment_type, _date, _media_group_id, _read):
         self.message_text = _message_text
         self.author_id = _author_id
         self.author_name = _author_name
@@ -37,9 +38,14 @@ class Message(db.Model):
         self.attachment_type = _attachment_type
         self.date = _date
         self.media_group_id = _media_group_id
+        self.read = _read
 
 
 def parse(string1, string2):
+    if string1 is None:
+        return {}
+    print(string1)
+    print(string2)
     a = string1.split(';')
     b = string2.split(';')
     r = {}
@@ -124,6 +130,16 @@ def streammp4(mp4_filename):
 
     return Response(generate(mp4_filename), mimetype="audio/mpeg")
 
+@app.route('/api/post/<post_id>')
+def toggle_read(post_id):
+    item = Message.query.filter(Message.id == post_id).all()[0]
+    if item.attachment_type:
+        post = [item, parse(item.attachment_name, item.attachment_type)]
+    else:
+        post = [item]
+    author = item.author_name
+
+    return render_template("post.html", post=post, author=author)
 
 if __name__ == "__main__":
     app.run(debug=True)
