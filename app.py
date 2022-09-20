@@ -55,9 +55,9 @@ def parse(string1, string2):
 
 
 @app.route("/")
-def hello_world():
+def index():
     try:
-        items = Message.query.order_by(Message.author_id).all()
+        items = Message.query.filter(Message.read!=1).order_by(Message.author_id).all()
         posts = defaultdict(list)
         authors = defaultdict(list)
         for item in items:
@@ -74,6 +74,7 @@ def hello_world():
         hed = "<h1>Something is broken.</h1>"
         return hed + error_text
 
+
 @app.route("/channels")
 def render_channels():
     items = Message.query.order_by(Message.author_id).all()
@@ -88,10 +89,11 @@ def render_channels():
     print(posts)
     return render_template("authors.html", items=posts, authors=authors)
 
+
 @app.route("/channel/<channel>")
 def render_channel(channel):
     try:
-        items = Message.query.filter(Message.author_id == channel).order_by(Message.author_id).all()
+        items = Message.query.filter(Message.read!=1).filter(Message.author_id == channel).order_by(Message.author_id).all()
         posts = defaultdict(list)
         authors = defaultdict(list)
         for item in items:
@@ -106,6 +108,7 @@ def render_channel(channel):
         error_text = "<p>The error:<br>" + str(e) + "</p>"
         hed = "<h1>Something is broken.</h1>"
         return hed + error_text
+
 
 @app.route("/mp3/<mp3_filename>")
 def streammp3(mp3_filename):
@@ -130,8 +133,9 @@ def streammp4(mp4_filename):
 
     return Response(generate(mp4_filename), mimetype="audio/mpeg")
 
+
 @app.route('/api/post/<post_id>')
-def toggle_read(post_id):
+def get_post(post_id):
     item = Message.query.filter(Message.id == post_id).all()[0]
     if item.attachment_type:
         post = [item, parse(item.attachment_name, item.attachment_type)]
@@ -140,6 +144,24 @@ def toggle_read(post_id):
     author = item.author_name
 
     return render_template("post.html", post=post, author=author)
+
+
+@app.route('/api/post/<post_id>/read')
+def toggle_read(post_id):
+    item = Message.query.filter(Message.id == post_id).all()[0]
+    item.read = 1
+    db.session.commit()
+    return index()
+
+@app.template_filter('get_block')
+def template_filter(block, file):
+    html = render_template(file)
+    # Then use regex or something to parse
+    # or even simple splits (better with named blocks), like...
+    content = html.split('{%% block %s %%}' % (block))[-1]
+    content = content.split('{%% endblock %%}')[0]
+    return content
+
 
 if __name__ == "__main__":
     app.run(debug=True)
