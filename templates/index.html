@@ -7,7 +7,7 @@
 <title>tg-to-org</title>
 <link rel="stylesheet"
       href="{{url_for('.static', filename='styles.css')}}">
-
+{% include 'navbar.html' %}
 {% block content %}
     {% for author in items %}
         <h1 align="center"><a href="/channel/{{ author }}">{{ authors[author] }}</a></h1>

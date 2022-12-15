@@ -5,7 +5,7 @@
 <title>tg-to-org</title>
 <link rel="stylesheet"
       href="{{url_for('.static', filename='styles.css')}}">
-
+{% include "navbar.html" %}
 {% block content %}
     {% for author in items %}
        {% if loop.first %}<div class="row">{% endif %}

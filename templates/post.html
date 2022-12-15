@@ -5,6 +5,7 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <title>tg-to-org</title>
 <link rel="stylesheet" href="{{url_for('.static', filename='styles.css')}}">
+{% include "navbar.html" %}
 {% block content %}
     <div class="post">
         {% if post[0].message_text %}
