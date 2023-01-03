@@ -4,3 +4,6 @@ __pycache__/*
 static/tg_data/*
 tg.db
 poetry.lock
+package-lock.json
+.fleet
+node_modules

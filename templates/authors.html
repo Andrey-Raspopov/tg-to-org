@@ -7,12 +7,18 @@
       href="{{url_for('.static', filename='styles.css')}}">
 {% include "navbar.html" %}
 {% block content %}
+<div class="container" id="channels-container">
     {% for author in items %}
+
        {% if loop.first %}<div class="row">{% endif %}
         <div class="col-md-2">
         <h4 align="center"><a href="channel/{{ author }}">{{ authors[author] }}</a></h4>
+        <div>{{ unread[author] }}</div>
         </div>
-        {% if loop.index is divisibleby(4) %}</div><div class="row">{% endif %}
+    <div class="vr" style="height: 250px;"></div>
+        {% if loop.index is divisibleby(5) %}</div><div class="row">
+    <hr class="hr" />{% endif %}
         {% if loop.last %}</div>{% endif %}
     {% endfor %}
+        </div>
 {% endblock %}
