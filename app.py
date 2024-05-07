@@ -4,52 +4,18 @@ from flask import Flask, Response
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 
+from models.message import Message
+
 app = Flask(__name__)
 
+
+db = SQLAlchemy(model_class=Message)
 db_name = "tg.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_name
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_name}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-
-db = SQLAlchemy(app)
-
-
-class Message(db.Model):
-    __tablename__ = "messages"
-    id = db.Column(db.Integer, primary_key=True)
-    message_text = db.Column(db.String)
-    author_id = db.Column(db.Integer)
-    author_name = db.Column(db.String)
-    sender_id = db.Column(db.Integer)
-    sender_name = db.Column(db.String)
-    attachment_name = db.Column(db.String)
-    attachment_type = db.Column(db.String)
-    date = db.Column(db.String)
-    media_group_id = db.Column(db.String)
-    read = db.Column(db.Integer)
-
-    def __init__(
-            self,
-            _message_text,
-            _author_id,
-            _author_name,
-            _sender_id,
-            _sender_name,
-            _attachment_name,
-            _attachment_type,
-            _date,
-            _media_group_id,
-            _read,
-    ):
-        self.message_text = _message_text
-        self.author_id = _author_id
-        self.author_name = _author_name
-        self.sender_id = _sender_id
-        self.sender_name = _sender_name
-        self.attachment_name = _attachment_name
-        self.attachment_type = _attachment_type
-        self.date = _date
-        self.media_group_id = _media_group_id
-        self.read = _read
+db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 
 def parse(string1, string2):

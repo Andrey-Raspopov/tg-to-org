@@ -1,10 +1,12 @@
 import asyncio
 import os
+from time import sleep
 
 from pyrogram.enums import MessageMediaType
+from pyrogram.errors import FloodWait
 
 
-def process_media(message):
+async def process_media(message):
     """
     Get media from the message and store it.
     :param message:
@@ -16,8 +18,17 @@ def process_media(message):
         if message.media == MessageMediaType.WEB_PAGE:
             attachment = message.web_page.embed_url
             attachment_type = str(message.media)
+        elif message.media == MessageMediaType.POLL:
+            # TODO: extract poll data
+            pass
         else:
-            attachment = asyncio.run(download(message))
+            event_loop = asyncio.get_running_loop()
+            if event_loop.is_running():
+                task = asyncio.create_task(download(message))
+                await task
+                attachment = task.result()
+            else:
+                attachment = asyncio.run(download(message))
             attachment = os.path.basename(attachment)
             attachment_type = str(message.media)
     return attachment, attachment_type
@@ -44,23 +55,31 @@ def process_author(message):
     :param message:
     :return:
     """
-    if message.forward_sender_name:
-        author_name = message.forward_sender_name
-        author_id = None
-    elif message.forward_from_chat:
-        author_name = message.forward_from_chat.title
-        author_id = message.forward_from_chat.id
+    if message.chat:
+        if message.forward_sender_name:
+            author_name = message.forward_sender_name
+            author_id = None
+        elif message.forward_from_chat:
+            author_name = message.forward_from_chat.title
+            author_id = message.forward_from_chat.id
+        else:
+            author_name = message.chat.title
+            author_id = -message.chat.id
     else:
-        author_name = message.chat.title
-        author_id = -message.chat.id
+        author_id = 0
+        author_name = ""
     return author_id, author_name
 
 
 async def download(message):
-    return await message.download(
-        file_name="static/tg_data/",
-        progress=progress
-    )
+    # TODO: rewrite this so we'll have a queue of downloads
+    result = None
+    while not result:
+        try:
+            result = await message.download(file_name="static/tg_data/", progress=progress)
+        except FloodWait as e:
+            await asyncio.sleep(e.value)
+    return result
 
 
 async def progress(current, total):
