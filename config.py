@@ -1,0 +1,4 @@
+ACCOUNT = "me"
+PHONE_NR =
+API_ID =
+API_HASH =

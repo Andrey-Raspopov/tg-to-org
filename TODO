@@ -1,0 +1,4 @@
+* Think about caching
+* On home page display channels ordered by number of unread (or the latest unread)
+* show only 50 latest and then make an infinite scroll
+* add recursive channel sweeps

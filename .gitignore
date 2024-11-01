@@ -1,0 +1,11 @@
+.idea/*
+**/__pycache__/*
+*.session*
+static/tg_data/*
+tg.db
+poetry.lock
+package-lock.json
+.fleet
+node_modules
+**usermedia**
+*.db*
